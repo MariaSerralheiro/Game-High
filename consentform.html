@@ -60,7 +60,6 @@
         iframe.onload = function() {
             load++;
 
-            // Scroll page to top of iframe whenever it reloads
            if (load > 1) {
             iframe.scrollIntoView({ behavior: "smooth", block: "start" });
             }
