@@ -107,12 +107,12 @@
             </div>
 
             <!-- Unity Loader Script -->
-            <script src="WGL5/Build/WGL5.loader.js"></script>
+            <script src="WGL5/Build/WGL7.loader.js"></script>
             <script>
                 createUnityInstance(document.querySelector("#unity-canvas"), {
-                    dataUrl:      "WGL5/Build/WGL5.data",
-                    frameworkUrl: "WGL5/Build/WGL5.framework.js",
-                    codeUrl:      "WGL5/Build/WGL5.wasm",
+                    dataUrl:      "WGL5/Build/WGL7.data",
+                    frameworkUrl: "WGL5/Build/WGL7.framework.js",
+                    codeUrl:      "WGL5/Build/WGL7.wasm",
                 }, function(progress) {
                     document.querySelector("#unity-progress").value = progress;
                 }).then(function(unityInstance) {
