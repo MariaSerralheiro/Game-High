@@ -17,34 +17,46 @@
 
     <!-- ===================== SINGLE SCRIPT BLOCK ===================== -->
     <script>
-        var gameDataJson = null;
+        var allGameData = [];
 
-        function ReceiveGameDataFromUnity(jsonData) {
-            gameDataJson = jsonData;
-            console.log("✅ Data received from Unity:", gameDataJson);
-            document.title = "Data Ready ✅"; // visual confirmation
+    function ReceiveGameDataFromUnity(jsonData) {
+        console.log("✅ Data received from Unity:", jsonData);
+
+        allGameData.push(JSON.parse(jsonData));
+
+        console.log(allGameData);
+    }
+
+    function continueStudy() {
+
+        // Check if any data exists
+        if (allGameData.length === 0) {
+            alert("Waiting for game data... Please finish the game first.");
+            return;
         }
 
-        function continueStudy() {
-            if (!gameDataJson) {
-                alert("Waiting for game data... Please finish the game first.");
-                return;
-            }
+        fetch("https://script.google.com/macros/s/AKfycbziOq83a31YMBxfULgiuoHXejoppAk-VbIKJ2wy2vZ9q8BvWnnFoetKD-H351OJ_0iT/exec", {
+            method: "POST",
 
-            fetch("https://script.google.com/macros/s/AKfycbwxADMjT2OTiQQIsfao-Qh62KA_AHYrrPBfZWr7jf5lwDjIoBRR5_iQvuVMv63KiXg19A/exec", {
-                method: "POST",
-                body: gameDataJson  // no Content-Type header — avoids CORS preflight
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log("✅ Upload success:", data);
-                window.location.href = "finalSurvey.html";
-            })
-            .catch(error => {
-                console.error("❌ Upload error:", error);
-                window.location.href = "finalSurvey.html"; // still redirect
-            });
-        }
+            // Send ALL rounds
+            body: JSON.stringify(allGameData)
+
+            // no Content-Type header — avoids CORS preflight
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log("✅ Upload success:", data);
+
+            window.location.href = "finalSurvey.html";
+        })
+        .catch(error => {
+
+            console.error("❌ Upload error:", error);
+
+            // still redirect
+            window.location.href = "finalSurvey.html";
+        });
+    }
     </script>
     <!-- ============================================================== -->
 
