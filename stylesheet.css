@@ -3,24 +3,10 @@ body{
     color: #051E3C;
 }
 
-/* Logos */
-#logoGAIPS {
+/* Logo */
+.logo {
     width: 100px;
 }
-#logoINESC {
-    width: 100px;
-    margin-left: -50px;
-}
-#logoIST {
-    width: 90px;
-    margin-left: -90px;
-}
-#logoUlisboa{
-    width: 190px;
-    margin-top: -20px;
-    margin-left: -160px;
-}
-
 
 /* Image Background Top */
 .imgBgTop {
