@@ -19,28 +19,18 @@
     <script>
         var allGameData = [];
         var unityGameInstance = null;
-        var gameIsMuted = false;
 
-        function toggleGameAudio() {
-            var button = document.getElementById("game-audio-button");
-            var audioContext = unityGameInstance
-                && unityGameInstance.Module
-                && unityGameInstance.Module.audioContext;
+        function setGameVolume(value) {
+            var volume = Math.max(0, Math.min(100, Number(value)));
+            document.getElementById("game-volume-value").textContent = volume + "%";
 
-            if (!audioContext) {
-                button.textContent = "Game audio is loading…";
-                return;
+            if (unityGameInstance) {
+                unityGameInstance.SendMessage(
+                    "AudioManager",
+                    "SetMasterVolumeFromWeb",
+                    volume / 100
+                );
             }
-
-            var action = gameIsMuted ? audioContext.resume() : audioContext.suspend();
-
-            Promise.resolve(action).then(function() {
-                gameIsMuted = !gameIsMuted;
-                button.textContent = gameIsMuted ? "🔇 Unmute game" : "🔊 Mute game";
-                button.setAttribute("aria-pressed", String(gameIsMuted));
-            }).catch(function(error) {
-                console.error("Could not change the game audio:", error);
-            });
         }
 
         function ReceiveGameDataFromUnity(jsonData) {
@@ -123,23 +113,23 @@
             <div style="margin-top: 3%; margin-bottom: 5%;"><hr></div>
 
             <!-- Unity WebGL Game (direct embed, no iframe) -->
-            <div class="d-flex justify-content-center mb-3">
-                <button
-                    id="game-audio-button"
-                    type="button"
-                    aria-pressed="false"
-                    onclick="toggleGameAudio()"
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+                <label for="game-volume" style="font: 700 18px Nunito, sans-serif; color: #051e3c;">
+                    🔊 Game volume: <output id="game-volume-value">100%</output>
+                </label>
+                <input
+                    id="game-volume"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value="100"
+                    aria-label="Game volume"
+                    oninput="setGameVolume(this.value)"
                     style="
-                        padding: 10px 20px;
-                        border: 2px solid #051e3c;
-                        border-radius: 8px;
-                        background: white;
-                        color: #051e3c;
-                        font: 700 18px Nunito, sans-serif;
-                        cursor: pointer;
+                        width: 240px;
+                        accent-color: #051e3c;
                     ">
-                    🔊 Mute game
-                </button>
             </div>
             <div class="col-lg-12 d-flex justify-content-center">
                 <div style="width: 960px; height: 540px; position: relative; background: #000;">
@@ -158,18 +148,18 @@
             </div>
 
             <!-- Unity Loader Script -->
-            <!-- <script src="WGL5/Build/WGL5.loader.js"></script> -->
-            <script src="WGL6/Build/WGL7HighNoB.loader.js"></script>
+            <script src="WGL6/Build/WGL7LowNoB.loader.js"></script>
 
             <script>
                 createUnityInstance(document.querySelector("#unity-canvas"), {
-                    dataUrl:      "WGL6/Build/WGL7HighNoB.data",
-                    frameworkUrl: "WGL6/Build/WGL7HighNoB.framework.js",
-                    codeUrl:      "WGL6/Build/WGL7HighNoB.wasm",
+                    dataUrl:      "WGL6/Build/WGL7LowNoB.data",
+                    frameworkUrl: "WGL6/Build/WGL7LowNoB.framework.js",
+                    codeUrl:      "WGL6/Build/WGL7LowNoB.wasm",
                 }, function(progress) {
                     document.querySelector("#unity-progress").value = progress;
                 }).then(function(unityInstance) {
                     unityGameInstance = unityInstance;
+                    setGameVolume(document.getElementById("game-volume").value);
                     // Hide loading screen once ready
                     document.getElementById("unity-loading").style.display = "none";
                     console.log("Unity loaded successfully.");
