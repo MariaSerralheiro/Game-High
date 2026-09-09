@@ -17,32 +17,41 @@
 
     <!-- ===================== SINGLE SCRIPT BLOCK ===================== -->
     <script>
-        var gameDataJson = null;
+        var allGameData = [];
 
         function ReceiveGameDataFromUnity(jsonData) {
-            gameDataJson = jsonData;
-            console.log("✅ Data received from Unity:", gameDataJson);
-            document.title = "Data Ready ✅"; // visual confirmation
+            try {
+                var parsedData = typeof jsonData === "string"
+                    ? JSON.parse(jsonData)
+                    : jsonData;
+
+                allGameData.push(parsedData);
+                console.log("✅ Data received from Unity:", parsedData);
+                console.log("Rounds collected:", allGameData.length);
+                document.title = "Data Ready ✅";
+            } catch (error) {
+                console.error("❌ Invalid data received from Unity:", error);
+            }
         }
 
         function continueStudy() {
-            if (!gameDataJson) {
+            if (allGameData.length === 0) {
                 alert("Waiting for game data... Please finish the game first.");
                 return;
             }
 
-            fetch("https://script.google.com/macros/s/AKfycbyETLSLL7r9cZdeScF7ZVaTrcX7hd6HHhbRfsjRWgcahL0ltgMdsRQIn611a8f6QtxfRA/exec", {
+            fetch("https://script.google.com/macros/s/AKfycbyvCgrennpP4PGoHsm5Dezh_KHu-xlyaXKGMxohn3gxTHN8MmhqPjI1SGR7Ps49Xs1FiA/exec", {
                 method: "POST",
-                body: gameDataJson  // no Content-Type header — avoids CORS preflight
+                mode: "no-cors",
+                body: JSON.stringify(allGameData)
             })
-            .then(response => response.text())
-            .then(data => {
-                console.log("✅ Upload success:", data);
+            .then(function() {
+                console.log("✅ Game data upload sent.");
                 window.location.href = "finalSurvey.html";
             })
-            .catch(error => {
+            .catch(function(error) {
                 console.error("❌ Upload error:", error);
-                window.location.href = "finalSurvey.html"; // still redirect
+                alert("The game data could not be saved. Please check your connection and try again.");
             });
         }
     </script>
