@@ -18,6 +18,30 @@
     <!-- ===================== SINGLE SCRIPT BLOCK ===================== -->
     <script>
         var allGameData = [];
+        var unityGameInstance = null;
+        var gameIsMuted = false;
+
+        function toggleGameAudio() {
+            var button = document.getElementById("game-audio-button");
+            var audioContext = unityGameInstance
+                && unityGameInstance.Module
+                && unityGameInstance.Module.audioContext;
+
+            if (!audioContext) {
+                button.textContent = "Game audio is loading…";
+                return;
+            }
+
+            var action = gameIsMuted ? audioContext.resume() : audioContext.suspend();
+
+            Promise.resolve(action).then(function() {
+                gameIsMuted = !gameIsMuted;
+                button.textContent = gameIsMuted ? "🔇 Unmute game" : "🔊 Mute game";
+                button.setAttribute("aria-pressed", String(gameIsMuted));
+            }).catch(function(error) {
+                console.error("Could not change the game audio:", error);
+            });
+        }
 
         function ReceiveGameDataFromUnity(jsonData) {
             try {
@@ -99,6 +123,24 @@
             <div style="margin-top: 3%; margin-bottom: 5%;"><hr></div>
 
             <!-- Unity WebGL Game (direct embed, no iframe) -->
+            <div class="d-flex justify-content-center mb-3">
+                <button
+                    id="game-audio-button"
+                    type="button"
+                    aria-pressed="false"
+                    onclick="toggleGameAudio()"
+                    style="
+                        padding: 10px 20px;
+                        border: 2px solid #051e3c;
+                        border-radius: 8px;
+                        background: white;
+                        color: #051e3c;
+                        font: 700 18px Nunito, sans-serif;
+                        cursor: pointer;
+                    ">
+                    🔊 Mute game
+                </button>
+            </div>
             <div class="col-lg-12 d-flex justify-content-center">
                 <div style="width: 960px; height: 540px; position: relative; background: #000;">
                     <canvas id="unity-canvas" style="width: 960px; height: 540px; display: block;"></canvas>
@@ -127,6 +169,7 @@
                 }, function(progress) {
                     document.querySelector("#unity-progress").value = progress;
                 }).then(function(unityInstance) {
+                    unityGameInstance = unityInstance;
                     // Hide loading screen once ready
                     document.getElementById("unity-loading").style.display = "none";
                     console.log("Unity loaded successfully.");
